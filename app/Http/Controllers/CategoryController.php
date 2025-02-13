@@ -4,14 +4,24 @@ namespace App\Http\Controllers;
 
 use App\Repositories\CategoryRepositoryInterface;
 
-class CategoryController extends Controller {
+class CategoryController extends Controller
+{
     private $categoryRepository;
 
-    public function __construct(CategoryRepositoryInterface $categoryRepository) {
+    public function __construct(CategoryRepositoryInterface $categoryRepository)
+    {
         $this->categoryRepository = $categoryRepository;
     }
 
-    public function index() {
-        return response()->json($this->categoryRepository->getAll(), 200);
+    public function index()
+    {
+        $categories = $this->categoryRepository->getAll();
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'categories' => $categories
+            ],
+            'message' => 'Categories retrieved successfully.'
+        ], 200);
     }
 }

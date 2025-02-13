@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\BO\ProductBO;
 use Illuminate\Http\Request;
 use App\Repositories\ProductRepositoryInterface;
+use App\Http\Requests\ProductRequest;
 
 class ProductController extends Controller
 {
@@ -21,7 +22,24 @@ class ProductController extends Controller
      */
     public function index()
     {
-        return response()->json($this->productRepository->getAll(), 200);
+        $products = $this->productRepository->getAll();
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'products' => $products->items(),
+                'pagination' => [
+                    'total' => $products->total(),
+                    'count' => $products->count(),
+                    'per_page' => $products->perPage(),
+                    'current_page' => $products->currentPage(),
+                    'total_pages' => $products->lastPage(),
+                    'links' => [
+                        'previous' => $products->previousPageUrl(),
+                        'next' => $products->nextPageUrl(),
+                    ],
+                ],
+            ]
+        ], 200);
     }
 
     /**
@@ -33,14 +51,25 @@ class ProductController extends Controller
     public function show($id)
     {
         if (empty($id) || !is_numeric($id)) {
-            return response()->json(['error' => 'Invalid Product ID.'], 400);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid Product ID.'
+            ], 400);
         }
 
         $product = $this->productRepository->getById($id);
         if ($product) {
-            return response()->json($product, 200);
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'product' => $product
+                ]
+            ], 200);
         } else {
-            return response()->json(['error' => 'Product not found.'], 404);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Product not found.'
+            ], 404);
         }
     }
 
@@ -50,57 +79,83 @@ class ProductController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function  store(Request $request)
+
+    public function store(ProductRequest $request)
     {
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'sku' => 'required|string|unique:products,sku',
-            'price' => 'required|numeric',
-            'category_id' => 'required|exists:categories,id'
-        ]);
-        return response()->json($this->productRepository->create($request->all()), 201);
+        $product = $this->productRepository->create($request->all());
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Product created successfully',
+            'data' => [
+                'product' => $product
+            ]
+        ], 201);
     }
- /**
+
+
+    /**
      * Update the specified product in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
-        if (empty($id) || !is_numeric($id)) {
-            return response()->json(['error' => 'Invalid Product ID.'], 400);
-        }
-        $validatedData = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'description' => 'sometimes|required|string',
-            'sku' => 'sometimes|required|string|unique:products,sku,' . $id,
-            'price' => 'sometimes|required|numeric|min:0',
-            'category_id' => 'sometimes|required|exists:categories,id'
-        ]);
 
-        return response()->json($this->productRepository->update($id, $request->all()), 200);
+    public function update(ProductRequest $request, $id)
+    {
+        if (!is_numeric($id)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid Product ID.'
+            ], 400);
+        }
+
+        $product = $this->productRepository->update($id, $request->all());
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Product updated successfully',
+            'data' => [
+                'product' => $product
+            ]
+        ], 200);
     }
 
+
+    /**
+     * Remove the specified product from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function destroy($id)
     {
+
         if (!$id) {
-            return response()->json(['error' => 'Product ID is missing.'], 400);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Product ID is missing.'
+            ], 400);
         }
-        
+
         try {
             $deleted = $this->productRepository->delete($id);
-            
+
             if (!$deleted) {
-                return response()->json(['error' => 'Product not found or could not be deleted.'], 404);
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Product not found or could not be deleted.'
+                ], 404);
             }
-    
-            return response()->json(['message' => 'Product deleted successfully.'], 200);
-            
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Product deleted successfully.'
+            ], 200);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'An unexpected error occurred while deleting the product.'], 500);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An unexpected error occurred while deleting the product.'
+            ], 500);
         }
     }
 }
