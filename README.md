@@ -89,23 +89,34 @@ curl --location 'http://localhost:8000/api/v1/products' \
 
 ### 3. Get Paginated Products
 ```sh
-curl --location 'http://localhost:8000/api/v1/products?page=2'
+curl --location 'http://localhost:8000/api/v1/products?search=test&category_id=2&page=1'
 ```
 **Response:**
 ```json
 {
     "status": "success",
     "data": {
-        "products": [],
+        "products": [
+            {
+                "id": 3,
+                "name": "Sample Product",
+                "description": "This is a sample product description...",
+                "sku": "SK1221131",
+                "price": "99.99",
+                "category_id": 1,
+                "created_at": "2025-02-12T18:49:01.000000Z",
+                "updated_at": "2025-02-13T07:58:31.000000Z"
+            }
+        ],
         "pagination": {
-            "total": 4,
-            "count": 0,
+            "total": 8,
+            "count": 1,
             "per_page": 1,
-            "current_page": 10,
-            "total_pages": 4,
+            "current_page": 1,
+            "total_pages": 8,
             "links": {
-                "previous": "http://localhost:8000/api/v1/products?page=9",
-                "next": null
+                "previous": null,
+                "next": "http://localhost:8000/api/v1/products?page=2"
             }
         }
     }

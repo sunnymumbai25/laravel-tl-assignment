@@ -1,8 +1,8 @@
 <?php
 
-namespace App\BO;
+namespace App\DAO;
 
-class ProductBO
+class ProductDAO
 {
     public $id;
     public $name;
