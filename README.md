@@ -39,7 +39,8 @@ The **Product Catalog API** is a Laravel-based RESTful API for managing product 
 
 4. Run migrations and seed database:
    ```sh
-   php artisan migrate --seed
+    php artisan migrate:fresh
+    php artisan db:seed 
    ```
 
 5. Start the application:
