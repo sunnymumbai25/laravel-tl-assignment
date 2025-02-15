@@ -37,17 +37,28 @@ The **Product Catalog API** is a Laravel-based RESTful API for managing product 
    ```
    Update database credentials in `.env`.
 
-4. Run migrations and seed database:
+4. Import laravel.sql database file:
+
+   ```sh
+   mysql -u [username] -p laravel < path/to/laravel.sql
+   ```
+
+
+5. Run migrations and seed database:
    ```sh
     php artisan migrate:fresh
     php artisan db:seed 
    ```
 
-5. Start the application:
+6. Start the application:
    ```sh
    php artisan serve
    ```
-
+   
+7. Run phpunit test:
+   ```sh
+   vendor/bin/phpunit
+   ```
 ## API Endpoints
 
 ### 1. Get All Products
